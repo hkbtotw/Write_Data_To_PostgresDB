@@ -13,7 +13,7 @@ conn = db.connect('Driver={ODBC Driver 17 for SQL Server};'
                             'Trusted_Connection=yes;')
 cursor = conn.cursor()
 
-#Original code
+#Original code (Not actually use, keep for reference)
 def updatedata():
     
     """" Sorce """
@@ -72,7 +72,7 @@ def updatedata():
     po.close()
     cursor.close()
 
-#Change column name in origin to name in destination
+#View edited table with changed column names 
 def View_Data():
     
     """" Sorce """
@@ -116,10 +116,12 @@ def View_Data():
 
     df['collected_at']=datetime.now()
 
+    # rename column names to match those in destination (on Postgres SQL)
     df=df.rename(columns={"CUSTM_CODE": "custm_code", "CUSTM_NAME": "custm_name", "CUSTM_LAT": "custm_lat", "CUSTM_LNG":"custm_lng"})
     df=df[['custm_code','custm_name','custm_lat','custm_lng','p_name_t','a_name_t','t_name_t','s_region','prov_idn' ,'amphoe_idn','tambon_idn','collected_at' ]].copy().reset_index(drop=True)
     print(" After ==> ",df.head(10))
 
+# Write to DB in batch
 def BatchInsert(df):
     print(datetime.now(),"--- count row: ",len(df)," ---")
     columns = [column for column in df.columns]
@@ -143,6 +145,8 @@ def BatchInsert(df):
 
     return None
 
+# Split the entire data to several smaller chunks to write to DB
+# PostgresDB can take smaller data chunk like 20000 rows at a time to write on database
 def split_dataframe(df, chunk_size): 
     chunks = list()
     num_chunks = len(df) // chunk_size + 1
@@ -213,7 +217,7 @@ def updatedata_2():
     po.close()
     cursor.close()
     
-#updatedata()
+
 View_Data()
 
 updatedata_2()
